@@ -12,6 +12,11 @@ import com.example.appnews.Models.MainNews
 import com.example.appnews.Models.ModelClass
 import com.example.appnews.R
 import com.example.appnews.adapters.NewsAdapter
+import com.example.appnews.dataBase.NewsDatabase
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -21,6 +26,9 @@ class HomeFragment:Fragment() {
     lateinit var modelClassArrayList:ArrayList<ModelClass>
     lateinit var newsAdapter: NewsAdapter
     private lateinit var recyclerViewOfHome: RecyclerView
+    private val newsDatabase: NewsDatabase by lazy {
+        NewsDatabase.getDatabase(requireContext().applicationContext)
+    }
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -39,12 +47,28 @@ class HomeFragment:Fragment() {
         ApiUtilities.getApiInterface().getNews("us",100,api).enqueue(object:Callback<MainNews>{
             override fun onResponse(call: Call<MainNews>, response: Response<MainNews>) {
                 if(response.isSuccessful){
-                    response.body()?.let { modelClassArrayList.addAll(it.articles) }
+                    val articles = response.body()!!.articles
+                    modelClassArrayList.clear()
+                    modelClassArrayList.addAll(articles)
                     newsAdapter.notifyDataSetChanged()
+                    // حفظ في Room
+                    CoroutineScope(Dispatchers.IO).launch {
+                        newsDatabase.newsDao().clearArticles()
+                        newsDatabase.newsDao().insertArticles(articles)
+                    }
                 }
             }
 
             override fun onFailure(call: Call<MainNews>, t: Throwable) {
+                // في حال الفشل - جلب الأخبار من Room
+                CoroutineScope(Dispatchers.IO).launch {
+                    val localArticles = newsDatabase.newsDao().getAllArticles()
+                    withContext(Dispatchers.Main) {
+                        modelClassArrayList.clear()
+                        modelClassArrayList.addAll(localArticles)
+                        newsAdapter.notifyDataSetChanged()
+                    }
+                }
             }
 
         })

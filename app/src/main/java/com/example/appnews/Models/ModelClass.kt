@@ -1,10 +1,18 @@
 package com.example.appnews.Models
 
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+
+@Entity(tableName = "articles")
 data class ModelClass(
-    var author:String,
-    var title:String,
-    var description:String,
-    var url:String,
-    var urlToImage:String,
-    var publishedAt:String
+    @PrimaryKey(autoGenerate = true)
+    val id: Int = 0,
+    val author: String?,
+    val title: String?,
+    val description: String?,
+    val url: String?,
+    val urlToImage: String?,
+    val publishedAt: String?,
+    val content: String?,
+    var category: String? = null
 )
