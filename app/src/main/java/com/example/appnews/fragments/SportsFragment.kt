@@ -26,7 +26,7 @@ import retrofit2.Response
 
 class SportsFragment : Fragment() {
 
-    private val apiKey = "22b900ad18f845e09405f64b97977943"
+    private val apiKey = "7eb7cc3900f247f7961ee1c519b145ae"
     private lateinit var modelClassArrayList: ArrayList<ModelClass>
     private lateinit var newsAdapter: NewsAdapter
     private lateinit var recyclerViewSports: RecyclerView

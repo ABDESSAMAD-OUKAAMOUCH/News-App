@@ -22,7 +22,7 @@ import retrofit2.Callback
 import retrofit2.Response
 
 class HomeFragment:Fragment() {
-    val api:String="22b900ad18f845e09405f64b97977943"
+    val api:String="7eb7cc3900f247f7961ee1c519b145ae"
     lateinit var modelClassArrayList:ArrayList<ModelClass>
     lateinit var newsAdapter: NewsAdapter
     private lateinit var recyclerViewOfHome: RecyclerView
