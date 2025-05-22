@@ -25,7 +25,7 @@ import retrofit2.Callback
 import retrofit2.Response
 
 class EntertainmentFragment:Fragment() {
-    val apiKey:String="7eb7cc3900f247f7961ee1c519b145ae"
+    val apiKey:String="77ea7faa42054626aa19ebc95798333f"
     lateinit var modelClassArrayList:ArrayList<ModelClass>
     lateinit var newsAdapter: NewsAdapter
     private lateinit var recyclerViewEntertainment: RecyclerView

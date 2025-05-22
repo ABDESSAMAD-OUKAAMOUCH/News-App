@@ -54,4 +54,6 @@ dependencies {
     implementation(libs.androidx.room.ktx)
     implementation(libs.play.services.auth)
     implementation(libs.circleimageview)
+    implementation(libs.android.gif.drawable)
+
 }

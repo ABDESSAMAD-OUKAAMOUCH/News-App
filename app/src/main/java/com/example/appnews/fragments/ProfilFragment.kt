@@ -2,6 +2,7 @@ package com.example.appnews.fragments
 
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
@@ -68,36 +69,48 @@ class ProfileFragment : Fragment() {
             val userEmail = account?.email ?: return@launch
 
             currentUser = db.userDao().getUser(userEmail)
+            Log.d("PROFILE", "Loaded user: $currentUser")
+
             currentUser?.let {
                 withContext(Dispatchers.Main) {
                     nameEditText.setText(it.displayName)
                     emailTextView.text = it.email
-                    val file = File(it.photoUrl ?: "")
-                    Glide.with(requireContext())
-                        .load(if (file.exists()) file else R.drawable.profilepicture)
-                        .placeholder(R.drawable.profilepicture)
-                        .into(photoImageView)
+
+                    val photoUrl = it.photoUrl
+                    if (!photoUrl.isNullOrEmpty()) {
+                        val isUrl = photoUrl.startsWith("http://") || photoUrl.startsWith("https://")
+                        val imageSource = if (isUrl) photoUrl else File(photoUrl)
+
+                        Glide.with(requireContext())
+                            .load(imageSource)
+                            .placeholder(R.drawable.profilepicture)
+                            .error(R.drawable.profilepicture)
+                            .into(photoImageView)
+                    } else {
+                        photoImageView.setImageResource(R.drawable.profilepicture)
+                    }
                 }
             }
         }
     }
+
 
     private fun saveUpdatedUser() {
         val updatedName = nameEditText.text.toString()
         CoroutineScope(Dispatchers.IO).launch {
             currentUser?.let {
                 it.displayName = updatedName
-                savedImagePath?.let { path -> it.photoUrl = path }
+                savedImagePath?.let { path -> it.photoUrl = path } // يستبدل الرابط بمسار محلي
                 NewsDatabase.getDatabase(requireContext()).userDao().updateUser(it)
 
                 withContext(Dispatchers.Main) {
-                    Toast.makeText(requireContext(), "update done", Toast.LENGTH_SHORT).show()
-                    // حدث الهيدر في الـ Activity مباشرة
+                    Toast.makeText(requireContext(), "Profile updated", Toast.LENGTH_SHORT).show()
                     (activity as? HomeActivity)?.updateNavigationHeader()
                 }
             }
         }
     }
+
 
     private fun saveImageToInternalStorage(uri: Uri): String? {
         return try {

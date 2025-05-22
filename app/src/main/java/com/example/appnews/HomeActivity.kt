@@ -119,23 +119,27 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             val user = db.userDao().getUser(email)
 
             user?.let {
-                val photoFile = File(it.photoUrl ?: "")
+                val photoUrl = it.photoUrl
                 withContext(Dispatchers.Main) {
-                    if (photoFile.exists()) {
+                    if (!photoUrl.isNullOrEmpty()) {
+                        val isUrl = photoUrl.startsWith("http://") || photoUrl.startsWith("https://")
+                        val imageSource = if (isUrl) photoUrl else File(photoUrl)
+
                         Glide.with(this@HomeActivity)
-                            .load(photoFile)
+                            .load(imageSource)
                             .placeholder(R.drawable.profilepicture)
                             .error(R.drawable.profilepicture)
                             .into(imageView)
                     } else {
                         imageView.setImageResource(R.drawable.profilepicture)
                     }
+
                     emailTextView.text = it.displayName
                 }
             }
         }
-
     }
+
 
     override fun onResume() {
         super.onResume()
